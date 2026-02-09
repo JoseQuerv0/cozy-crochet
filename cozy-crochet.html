@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cozy Crochet</title>
+
+<style>
+body {
+  margin: 0;
+  background: #f6f1ea;
+  font-family: system-ui, sans-serif;
+  color: #4a3b2c;
+}
+
+/* ---------- UI ---------- */
+#ui {
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  background: #efe6da;
+  border-bottom: 2px solid #dccfbf;
+}
+
+#controls {
+  padding: 8px 20px;
+  background: #f0e7db;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  font-size: 14px;
+}
+
+select {
+  padding: 4px;
+  border-radius: 6px;
+}
+
+canvas {
+  display: block;
+  margin: 0 auto;
+  background: #faf7f2;
+}
+
+/* ---------- Tutorial ---------- */
+#tutorial {
+  position: absolute;
+  left: 20px;
+  bottom: 120px;
+  background: rgba(255,255,255,0.92);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  max-width: 260px;
+}
+
+/* ---------- Gallery ---------- */
+#gallery {
+  padding: 10px;
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  background: #efe6da;
+}
+
+.piece {
+  min-width: 160px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 8px;
+  font-size: 12px;
+  text-align: center;
+  cursor: pointer;
+}
+
+/* ---------- Pattern Viewer ---------- */
+#patternViewer {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  align-items: center;
+  justify-content: center;
+}
+
+#patternBox {
+  background: #fff;
+  padding: 16px;
+  border-radius: 12px;
+}
+
+#patternBox canvas {
+  background: #faf7f2;
+  border-radius: 8px;
+}
+
+/* ---------- Mobile Controls ---------- */
+#touchControls {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  flex-wrap: wrap;
+  background: #efe6da;
+}
+
+#touchControls button {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: none;
+  background: #dccfbf;
+  font-size: 14px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 🎵 Background music -->
+<audio id="bgm" src="music.mp3" loop></audio>
+
+<div id="ui">
+  <div id="left"></div>
+  <div id="right"></div>
+</div>
+
+<div id="controls">
+  Object:
+  <select id="object">
+    <option value="scarf">Scarf</option>
+    <option value="square" selected>Square</option>
+    <option value="hat">Hat Panel</option>
+    <option value="patch">Patch</option>
+    <option value="plush">Plush Panel</option>
+  </select>
+
+  Yarn:
+  <select id="yarn">
+    <option value="#c49a6c">Wool Beige</option>
+    <option value="#b55a30">Rust</option>
+    <option value="#7b8f6a">Sage</option>
+    <option value="#6a7fa8">Blue</option>
+    <option value="#8c5a7a">Plum</option>
+  </select>
+</div>
+
+<canvas id="game" width="900" height="460"></canvas>
+
+<div id="tutorial"></div>
+<div id="gallery"></div>
+
+<!-- 📱 Mobile / Touch Controls -->
+<div id="touchControls">
+  <button onclick="press('A')">Insert</button>
+  <button onclick="press('W')">Yarn Over</button>
+  <button onclick="press('D')">Pull</button>
+  <button onclick="press('S')">Tighten</button>
+  <button onclick="press('Space')">Finish</button>
+  <button onclick="press('Backspace')">Undo</button>
+</div>
+
+<!-- 🧶 Pattern Viewer -->
+<div id="patternViewer" onclick="closePattern()">
+  <div id="patternBox" onclick="event.stopPropagation()">
+    <h3 id="patternTitle"></h3>
+    <canvas id="patternCanvas" width="420" height="420"></canvas>
+    <div style="text-align:center;margin-top:10px;">
+      <button onclick="closePattern()">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= CORE DATA ================= */
+
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+const bgm = document.getElementById("bgm");
+bgm.volume = 0.35;
+
+function startMusic() {
+  if (bgm.paused) {
+    bgm.play().catch(() => {});
+  }
+}
+
+const STITCHES = {
+  chain:["W","D","Space"],
+  single:["A","W","D","S","Space"],
+  double:["W","W","A","D","S","Space"]
+};
+
+const INFO = {
+  chain:"Chain stitch",
+  single:"Single crochet",
+  double:"Double crochet"
+};
+
+const NAMES = { chain:"CH", single:"SC", double:"DC" };
+
+const OBJECTS = {
+  scarf:l=>({w:6,h:6+l}),
+  square:l=>({w:8+l,h:4+l}),
+  hat:l=>({w:12+l,h:6+l}),
+  patch:l=>({w:5,h:5}),
+  plush:l=>({w:7+l,h:9+l})
+};
+
+const game = {
+  level:1,
+  xp:0,
+  yarn:"#c49a6c",
+  object:"square",
+  pattern:[],
+  row:0,
+  col:0,
+  buffer:[],
+  fabric:[],
+  anim:0,
+  finished:false,
+  gallery:JSON.parse(localStorage.getItem("gallery")||"[]")
+};
+
+/* ================= INPUT ================= */
+
+window.addEventListener("keydown",e=>{
+  if(["Backspace"," ","a","w","s","d","A","W","S","D"].includes(e.key)) e.preventDefault();
+  if(e.repeat||game.finished)return;
+  const key={a:"A",w:"W",s:"S",d:"D"," ":"Space",Backspace:"Backspace"}[e.key];
+  if(key) press(key);
+});
+
+function press(key){
+  startMusic();
+  if(game.finished)return;
+  if(key==="Backspace") return undo();
+  game.buffer.push(key);
+  checkCombo();
+}
+
+/* ================= LOGIC ================= */
+
+function generatePattern(){
+  const d=OBJECTS[game.object](game.level);
+  const allowed=game.level<3?["chain","single"]:["single","double"];
+  return Array.from({length:d.h},()=>Array.from({length:d.w},
+    ()=>allowed[Math.floor(Math.random()*allowed.length)]));
+}
+
+function checkCombo(){
+  const row=game.pattern[game.row]; if(!row)return;
+  const t=row[game.col]; if(!t)return;
+  const c=STITCHES[t];
+  if(game.buffer.length>c.length) return reset();
+  for(let i=0;i<game.buffer.length;i++) if(game.buffer[i]!==c[i]) return;
+  game.anim=Math.min(1,game.buffer.length/c.length);
+  if(game.buffer.length===c.length) complete(t);
+}
+
+function complete(){
+  game.fabric.push({row:game.row,col:game.col,depth:game.fabric.length});
+  game.buffer=[]; game.anim=0; game.col++;
+  if(game.col>=game.pattern[0].length){game.col=0;game.row++;game.xp+=10;}
+  if(game.row>=game.pattern.length) finish();
+}
+
+function reset(){game.buffer=[];game.anim=0;}
+function undo(){const l=game.fabric.pop(); if(!l)return; game.row=l.row; game.col=l.col; reset();}
+
+function finish(){
+  game.finished=true;
+  game.gallery.push({object:game.object,yarn:game.yarn,fabric:JSON.parse(JSON.stringify(game.fabric))});
+  localStorage.setItem("gallery",JSON.stringify(game.gallery));
+  setTimeout(()=>{game.level++; start();},2000);
+}
+
+/* ================= DRAW ================= */
+
+function drawStitch(ctx,x,y){
+  ctx.beginPath();
+  ctx.moveTo(x,y);
+  ctx.bezierCurveTo(x-8,y-12,x+8,y-12,x,y);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(x,y);
+  ctx.lineTo(x,y+10);
+  ctx.stroke();
+}
+
+function drawHook(ctx,x,y){
+  ctx.strokeStyle="#6d5c4d";
+  ctx.lineWidth=3;
+  ctx.beginPath();
+  ctx.moveTo(x-10,y-20);
+  ctx.lineTo(x+4,y+4);
+  ctx.stroke();
+}
+
+function drawFabric(ctx,fabric,yarn,scale,ox,oy){
+  ctx.strokeStyle=yarn; ctx.lineWidth=3;
+  fabric.sort((a,b)=>a.depth-b.depth).forEach(s=>{
+    drawStitch(ctx,ox+s.col*scale,oy-s.row*scale);
+  });
+}
+
+/* ================= UI ================= */
+
+function updateUI(){
+  document.getElementById("left").innerHTML=
+    game.pattern.map((r,i)=>(i===game.row?"▶ ":"")+r.map(s=>NAMES[s]).join(" ")).join("<br>");
+  document.getElementById("right").innerHTML=
+    `Object: ${game.object}<br>Level ${game.level}<br>XP ${game.xp}`;
+  const r=game.pattern[game.row]; const t=document.getElementById("tutorial");
+  if(!r)return t.textContent="";
+  const s=r[game.col]; const c=STITCHES[s];
+  t.innerHTML=`<b>${INFO[s]}</b><br>Next: <strong>${c[game.buffer.length]||"—"}</strong>`;
+}
+
+function updateGallery(){
+  const g=document.getElementById("gallery"); g.innerHTML="";
+  game.gallery.forEach((p,i)=>{
+    const d=document.createElement("div");
+    d.className="piece";
+    d.innerHTML=`<b>${p.object}</b><br><span style="color:${p.yarn}">● yarn</span><br>View`;
+    d.onclick=()=>openPattern(i);
+    g.appendChild(d);
+  });
+}
+
+function openPattern(i){
+  const p=game.gallery[i];
+  document.getElementById("patternTitle").textContent=`${p.object} — finished`;
+  const c=document.getElementById("patternCanvas");
+  const cx=c.getContext("2d");
+  cx.clearRect(0,0,c.width,c.height);
+  drawFabric(cx,p.fabric,p.yarn,22,40,c.height-40);
+  const last=p.fabric[p.fabric.length-1];
+  if(last) drawHook(cx,40+last.col*22,(c.height-40)-last.row*22);
+  document.getElementById("patternViewer").style.display="flex";
+}
+
+function closePattern(){
+  document.getElementById("patternViewer").style.display="none";
+}
+
+/* ================= LOOP ================= */
+
+function render(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  if(!game.finished){
+    drawFabric(ctx,game.fabric,game.yarn,18,150,360);
+    drawHook(ctx,150+game.col*18,360-game.row*18);
+  }
+  requestAnimationFrame(render);
+}
+
+/* ================= START ================= */
+
+function start(){
+  game.object=document.getElementById("object").value;
+  game.yarn=document.getElementById("yarn").value;
+  game.pattern=generatePattern();
+  game.fabric=[]; game.row=0; game.col=0; game.buffer=[]; game.anim=0; game.finished=false;
+  updateGallery();
+}
+
+document.getElementById("object").onchange=start;
+document.getElementById("yarn").onchange=start;
+
+start();
+setInterval(updateUI,100);
+render();
+</script>
+
+</body>
+</html>

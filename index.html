@@ -6,162 +6,93 @@
 <title>Cozy Crochet</title>
 
 <style>
-:root {
-  --bg: #0f0b17;
-  --panel: #1b132a;
-  --panel-soft: #24183a;
-  --accent: #9b6dff;
-  --accent-soft: #c7b3ff;
-  --text: #f4f1ff;
-  --muted: #b9aee8;
-  --yarn-ui: #9b6dff;
+:root{
+  --bg:#0f0b17;
+  --panel:#1b132a;
+  --panel-soft:#24183a;
+  --accent:#b388ff;
+  --text:#f6f3ff;
+  --muted:#b9aee8;
 }
 
-/* ---------- Base ---------- */
-body {
-  margin: 0;
-  background: var(--bg);
-  font-family: system-ui, sans-serif;
-  color: var(--text);
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:system-ui,sans-serif;
 }
 
-/* ---------- Top UI ---------- */
-#ui {
-  padding: 10px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  background: var(--panel);
-  border-bottom: 1px solid #332255;
+#ui{
+  background:var(--panel);
+  padding:10px 12px;
+  display:flex;
+  justify-content:space-between;
+  font-size:13px;
 }
 
-#left {
-  font-size: 13px;
-  line-height: 1.4;
-  max-height: 6em;
-  overflow-y: auto;
+#controls{
+  background:var(--panel-soft);
+  padding:10px 12px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
 }
 
-#right {
-  font-size: 13px;
-  color: var(--muted);
+select{
+  background:#120c1f;
+  color:var(--text);
+  border:1px solid #3a2a66;
+  border-radius:8px;
+  padding:6px;
 }
 
-/* ---------- Controls ---------- */
-#controls {
-  padding: 10px 14px;
-  background: var(--panel-soft);
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  align-items: center;
-  font-size: 14px;
+#game{
+  width:100vw;
+  height:45vh;
+  display:block;
+  background:radial-gradient(circle at top,#1d1335,#0f0b17);
 }
 
-select {
-  background: #120c1f;
-  color: var(--text);
-  border: 1px solid #3a2a66;
-  padding: 6px 10px;
-  border-radius: 8px;
+#tutorial{
+  margin:10px;
+  background:#24183a;
+  padding:12px;
+  border-radius:12px;
+  font-size:14px;
 }
 
-/* ---------- Canvas ---------- */
-#game {
-  width: 100vw;
-  height: 45vh;
-  max-height: 420px;
-  display: block;
-  background: radial-gradient(circle at top, #1a102b, #0f0b17);
+#touchControls{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  padding:12px;
+  background:var(--panel-soft);
 }
 
-/* ---------- Tutorial ---------- */
-#tutorial {
-  margin: 10px;
-  background: rgba(36,24,58,0.95);
-  padding: 12px 14px;
-  border-radius: 12px;
-  font-size: 14px;
-  line-height: 1.4;
-  border: 1px solid #3a2a66;
+#touchControls button{
+  padding:16px;
+  font-size:15px;
+  border:none;
+  border-radius:14px;
+  background:linear-gradient(180deg,#5e3fa6,#3b2a66);
+  color:white;
 }
 
-/* ---------- Gallery ---------- */
-#gallery {
-  padding: 10px;
-  display: flex;
-  gap: 12px;
-  overflow-x: auto;
-  background: var(--panel);
+#celebration{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(15,11,23,.92);
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  text-align:center;
 }
 
-.piece {
-  min-width: 150px;
-  background: #140d23;
-  border-radius: 12px;
-  padding: 10px;
-  font-size: 13px;
-  text-align: center;
-  border: 1px solid #3a2a66;
-}
-
-/* ---------- Touch Controls ---------- */
-#touchControls {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  padding: 14px;
-  background: var(--panel-soft);
-}
-
-#touchControls button {
-  padding: 16px 10px;
-  border-radius: 14px;
-  border: none;
-  background: linear-gradient(180deg, #3a2a66, #25184a);
-  color: var(--text);
-  font-size: 15px;
-  font-weight: 500;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-}
-
-/* ---------- Pattern Viewer ---------- */
-#patternViewer {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.65);
-  align-items: center;
-  justify-content: center;
-}
-
-#patternBox {
-  background: #120c1f;
-  padding: 16px;
-  border-radius: 14px;
-  border: 1px solid #3a2a66;
-}
-
-#patternBox canvas {
-  background: radial-gradient(circle, #1a102b, #0f0b17);
-  border-radius: 10px;
-}
-
-#patternBox button {
-  margin-top: 10px;
-  padding: 10px 14px;
-  border-radius: 10px;
-  border: none;
-  background: var(--accent);
-  color: #120c1f;
-  font-weight: bold;
-}
-
-/* ---------- Desktop tweaks ---------- */
-@media (min-width: 700px) {
-  #ui { flex-direction: row; justify-content: space-between; }
-  #left { max-height: none; }
-  #game { height: 420px; max-width: 900px; margin: 0 auto; }
+#celebration canvas{
+  margin-top:10px;
+  background:radial-gradient(circle,#1d1335,#0f0b17);
+  border-radius:16px;
 }
 </style>
 </head>
@@ -178,27 +109,26 @@ select {
 <div id="controls">
   Object:
   <select id="object">
+    <option value="square">Square</option>
     <option value="scarf">Scarf</option>
-    <option value="square" selected>Square</option>
-    <option value="hat">Hat Panel</option>
     <option value="patch">Patch</option>
+    <option value="heart">Heart</option>
+    <option value="star">Star</option>
     <option value="plush">Plush Panel</option>
   </select>
 
   Yarn:
   <select id="yarn">
-    <option value="#9b6dff">Amethyst</option>
-    <option value="#c77dff">Lavender</option>
-    <option value="#ff7ad9">Rose Neon</option>
+    <option value="#b388ff">Lavender</option>
+    <option value="#ff8bd7">Pink Glow</option>
     <option value="#7cf0ff">Moon Blue</option>
     <option value="#f2c94c">Gold</option>
   </select>
 </div>
 
-<canvas id="game" width="900" height="460"></canvas>
+<canvas id="game"></canvas>
 
 <div id="tutorial"></div>
-<div id="gallery"></div>
 
 <div id="touchControls">
   <button onclick="press('A')">Insert</button>
@@ -209,162 +139,245 @@ select {
   <button onclick="press('Backspace')">Undo</button>
 </div>
 
-<div id="patternViewer" onclick="closePattern()">
-  <div id="patternBox" onclick="event.stopPropagation()">
-    <h3 id="patternTitle"></h3>
-    <canvas id="patternCanvas" width="360" height="360"></canvas>
-    <div style="text-align:center">
-      <button onclick="closePattern()">Close</button>
-    </div>
-  </div>
+<div id="celebration" onclick="closeCelebration()">
+  <h2>Good job! 💜</h2>
+  <p>You made something cozy ✨</p>
+  <canvas id="celebrationCanvas" width="300" height="300"></canvas>
+  <p>Tap to continue</p>
 </div>
 
 <script>
-/* ================= CORE ================= */
-
+/* ================= CANVAS ================= */
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
+
+function resize(){
+  const r = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = r.width * dpr;
+  canvas.height = r.height * dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+window.addEventListener("resize", resize);
+resize();
+
+/* ================= MUSIC ================= */
 const bgm = document.getElementById("bgm");
 bgm.volume = 0.35;
-
-function startMusic(){ if(bgm.paused) bgm.play().catch(()=>{}); }
-
-function resizeCanvas(){
-  const r = canvas.getBoundingClientRect();
-  canvas.width = r.width * devicePixelRatio;
-  canvas.height = r.height * devicePixelRatio;
-  ctx.scale(devicePixelRatio, devicePixelRatio);
+function startMusic(){
+  if(bgm.paused) bgm.play().catch(()=>{});
 }
-window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
 
-/* ==== GAME DATA (same logic as before) ==== */
-const STITCHES={chain:["W","D","Space"],single:["A","W","D","S","Space"],double:["W","W","A","D","S","Space"]};
-const INFO={chain:"Chain stitch",single:"Single crochet",double:"Double crochet"};
-const NAMES={chain:"CH",single:"SC",double:"DC"};
-const OBJECTS={scarf:l=>({w:6,h:6+l}),square:l=>({w:8+l,h:4+l}),hat:l=>({w:12+l,h:6+l}),patch:l=>({w:5,h:5}),plush:l=>({w:7+l,h:9+l})};
+/* ================= STITCH COMBOS ================= */
+const STITCHES = {
+  chain:["W","D","Space"],
+  single:["A","W","D","S","Space"],
+  double:["W","W","A","D","S","Space"]
+};
 
-const game={level:1,xp:0,yarn:"#9b6dff",object:"square",pattern:[],row:0,col:0,buffer:[],fabric:[],anim:0,finished:false,gallery:JSON.parse(localStorage.getItem("gallery")||"[]")};
+/* ================= OBJECT SHAPES ================= */
+const OBJECTS = {
+  square:{w:8,h:8},
+  scarf:{w:6,h:12},
+  patch:{w:5,h:5},
+  plush:{w:7,h:12},
+  heart:{w:7,h:7,mask:(r,c)=>Math.abs(c-3)+r<6},
+  star:{w:9,h:9,mask:(r,c)=>r%2||c%2}
+};
 
-/* ==== INPUT ==== */
-window.addEventListener("keydown",e=>{
-  if(["Backspace"," ","a","w","s","d"].includes(e.key)) e.preventDefault();
-  if(e.repeat||game.finished) return;
-  const k={a:"A",w:"W",s:"S",d:"D"," ":"Space",Backspace:"Backspace"}[e.key];
-  if(k) press(k);
-});
+/* ================= GAME STATE ================= */
+const game = {
+  yarn:"#b388ff",
+  object:"square",
+  pattern:[],
+  index:0,
+  buffer:[],
+  fabric:[],
+  finished:false
+};
 
-function press(key){
+/* ================= INPUT ================= */
+function press(k){
   startMusic();
   if(game.finished) return;
-  if(key==="Backspace") return undo();
-  game.buffer.push(key);
+
+  if(k==="Backspace"){
+    undo();
+    return;
+  }
+
+  game.buffer.push(k);
   checkCombo();
 }
 
-/* ==== LOGIC / DRAW / UI ==== */
-/* (unchanged from your stable version – intentionally kept the same) */
+window.addEventListener("keydown", e=>{
+  const map = {a:"A",w:"W",s:"S",d:"D"," ":"Space",Backspace:"Backspace"};
+  if(map[e.key]){
+    e.preventDefault();
+    press(map[e.key]);
+  }
+});
 
+/* ================= PATTERN ================= */
 function generatePattern(){
-  const d=OBJECTS[game.object](game.level);
-  const allowed=game.level<3?["chain","single"]:["single","double"];
-  return Array.from({length:d.h},()=>Array.from({length:d.w},()=>allowed[Math.floor(Math.random()*allowed.length)]));
+  game.pattern = [];
+  game.index = 0;
+  const o = OBJECTS[game.object];
+  const types = ["chain","single","double"];
+  let t = 0;
+
+  for(let r=0;r<o.h;r++){
+    for(let c=0;c<o.w;c++){
+      if(!o.mask || o.mask(r,c)){
+        game.pattern.push({
+          row:r,
+          col:c,
+          type:types[t % types.length]
+        });
+        t++;
+      }
+    }
+  }
 }
 
+/* ================= COMBO LOGIC ================= */
 function checkCombo(){
-  const r=game.pattern[game.row]; if(!r)return;
-  const t=r[game.col]; if(!t)return;
-  const c=STITCHES[t];
-  if(game.buffer.length>c.length) return reset();
-  for(let i=0;i<game.buffer.length;i++) if(game.buffer[i]!==c[i]) return;
-  if(game.buffer.length===c.length) complete();
+  const target = game.pattern[game.index];
+  if(!target) return;
+
+  const combo = STITCHES[target.type];
+
+  for(let i=0;i<game.buffer.length;i++){
+    if(game.buffer[i] !== combo[i]){
+      game.buffer = [];
+      return;
+    }
+  }
+
+  if(game.buffer.length === combo.length){
+    complete();
+  }
 }
 
 function complete(){
-  game.fabric.push({row:game.row,col:game.col,depth:game.fabric.length});
-  game.buffer=[]; game.col++;
-  if(game.col>=game.pattern[0].length){game.col=0;game.row++;game.xp+=10;}
-  if(game.row>=game.pattern.length) finish();
+  const s = game.pattern[game.index];
+  game.fabric.push(s);
+  game.index++;
+  game.buffer = [];
+
+  if(game.index >= game.pattern.length){
+    finish();
+  }
 }
 
-function reset(){game.buffer=[];}
-function undo(){const l=game.fabric.pop(); if(!l)return; game.row=l.row; game.col=l.col;}
+function undo(){
+  if(game.index === 0) return;
+  game.index--;
+  game.fabric.pop();
+  game.buffer = [];
+}
 
+/* ================= FINISH ================= */
 function finish(){
-  game.finished=true;
-  game.gallery.push({object:game.object,yarn:game.yarn,fabric:JSON.parse(JSON.stringify(game.fabric))});
-  localStorage.setItem("gallery",JSON.stringify(game.gallery));
-  setTimeout(()=>{game.level++; start();},2000);
+  game.finished = true;
+  showCelebration();
 }
 
-function drawStitch(x,y){
-  ctx.strokeStyle=game.yarn; ctx.lineWidth=3;
-  ctx.beginPath(); ctx.moveTo(x,y);
-  ctx.bezierCurveTo(x-8,y-12,x+8,y-12,x,y);
+/* ================= DRAWING ================= */
+function drawYarn(x,y){
+  ctx.strokeStyle = game.yarn;
+  ctx.lineWidth = 6;
+  ctx.shadowColor = game.yarn;
+  ctx.shadowBlur = 10;
+  ctx.beginPath();
+  ctx.moveTo(x-10,y+10);
+  ctx.quadraticCurveTo(x,y-10,x+10,y+10);
   ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x,y+10); ctx.stroke();
+  ctx.shadowBlur = 0;
 }
 
 function drawHook(x,y){
-  ctx.strokeStyle="#c7b3ff"; ctx.lineWidth=3;
-  ctx.beginPath(); ctx.moveTo(x-10,y-20); ctx.lineTo(x+4,y+4); ctx.stroke();
+  ctx.strokeStyle = "#fff";
+  ctx.lineWidth = 5;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(x-14,y-24);
+  ctx.lineTo(x+6,y+6);
+  ctx.stroke();
 }
 
 function render(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  const ox = canvas.clientWidth/2 - 80;
+  const oy = canvas.clientHeight/2 + 60;
+
+  game.fabric.forEach(s=>{
+    drawYarn(ox + s.col*24, oy - s.row*24);
+  });
+
   if(!game.finished){
-    game.fabric.forEach(s=>drawStitch(40+s.col*22,canvas.height/2-s.row*22));
-    drawHook(40+game.col*22,canvas.height/2-game.row*22);
+    const t = game.pattern[game.index];
+    if(t){
+      drawHook(ox + t.col*24, oy - t.row*24);
+    }
   }
+
   requestAnimationFrame(render);
 }
-
-function updateUI(){
-  document.getElementById("left").innerHTML=
-    game.pattern.map((r,i)=>(i===game.row?"▶ ":"")+r.map(s=>NAMES[s]).join(" ")).join("<br>");
-  document.getElementById("right").innerHTML=`Level ${game.level} · XP ${game.xp}`;
-  const r=game.pattern[game.row];
-  document.getElementById("tutorial").innerHTML=r?`<b>${INFO[r[game.col]]}</b><br>Next: ${STITCHES[r[game.col]][game.buffer.length]||"—"}`:"";
-}
-
-function updateGallery(){
-  const g=document.getElementById("gallery"); g.innerHTML="";
-  game.gallery.forEach((p,i)=>{
-    const d=document.createElement("div");
-    d.className="piece";
-    d.innerHTML=`<b>${p.object}</b><br><span style="color:${p.yarn}">● yarn</span>`;
-    d.onclick=()=>openPattern(i);
-    g.appendChild(d);
-  });
-}
-
-function openPattern(i){
-  const p=game.gallery[i];
-  const c=document.getElementById("patternCanvas");
-  const cx=c.getContext("2d");
-  cx.clearRect(0,0,c.width,c.height);
-  cx.strokeStyle=p.yarn; cx.lineWidth=3;
-  p.fabric.forEach(s=>drawStitch.call({strokeStyle:p.yarn},40+s.col*22,c.height-40-s.row*22));
-  drawHook(40+p.fabric.at(-1).col*22,c.height-40-p.fabric.at(-1).row*22);
-  document.getElementById("patternViewer").style.display="flex";
-}
-
-function closePattern(){document.getElementById("patternViewer").style.display="none";}
-
-function start(){
-  game.object=object.value;
-  game.yarn=yarn.value;
-  game.pattern=generatePattern();
-  game.fabric=[]; game.row=0; game.col=0; game.buffer=[]; game.finished=false;
-  updateGallery();
-}
-
-object.onchange=start;
-yarn.onchange=start;
-
-start();
-setInterval(updateUI,120);
 render();
+
+/* ================= UI ================= */
+function updateUI(){
+  const t = game.pattern[game.index];
+  if(!t){
+    tutorial.textContent = "";
+    return;
+  }
+  const combo = STITCHES[t.type];
+  tutorial.innerHTML =
+    `<b>${t.type.toUpperCase()} stitch</b><br>
+     Next: <strong>${combo[game.buffer.length] || "—"}</strong>`;
+  left.textContent = `Object: ${game.object}`;
+  right.textContent = `Stitch ${game.index+1} / ${game.pattern.length}`;
+}
+setInterval(updateUI,120);
+
+/* ================= CELEBRATION ================= */
+function showCelebration(){
+  const c = document.getElementById("celebrationCanvas");
+  const cx = c.getContext("2d");
+  cx.clearRect(0,0,c.width,c.height);
+  cx.strokeStyle = game.yarn;
+  cx.lineWidth = 5;
+
+  game.fabric.forEach(s=>{
+    cx.beginPath();
+    cx.arc(40 + s.col*22, 260 - s.row*22, 8, 0, Math.PI*2);
+    cx.stroke();
+  });
+
+  celebration.style.display = "flex";
+}
+
+function closeCelebration(){
+  celebration.style.display = "none";
+  start();
+}
+
+/* ================= START ================= */
+function start(){
+  game.object = object.value;
+  game.yarn = yarn.value;
+  game.buffer = [];
+  game.fabric = [];
+  game.finished = false;
+  generatePattern();
+}
+
+object.onchange = start;
+yarn.onchange = start;
+start();
 </script>
 
 </body>

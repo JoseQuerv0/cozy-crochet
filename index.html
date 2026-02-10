@@ -115,6 +115,7 @@ select{
     <option value="heart">Heart</option>
     <option value="star">Star</option>
     <option value="plush">Plush Panel</option>
+    <option value="beanie">Beanie</option>
   </select>
 
   Yarn:
@@ -140,7 +141,7 @@ select{
 </div>
 
 <div id="celebration" onclick="closeCelebration()">
-  <h2>Good job! 💜</h2>
+  <h2 id="rewardTitle">Good job! 💜</h2>
   <p>You made something cozy ✨</p>
   <canvas id="celebrationCanvas" width="300" height="300"></canvas>
   <p>Tap to continue</p>
@@ -177,12 +178,13 @@ const STITCHES = {
 
 /* ================= OBJECT SHAPES ================= */
 const OBJECTS = {
-  square:{w:8,h:8},
-  scarf:{w:6,h:12},
-  patch:{w:5,h:5},
-  plush:{w:7,h:12},
-  heart:{w:7,h:7,mask:(r,c)=>Math.abs(c-3)+r<6},
-  star:{w:9,h:9,mask:(r,c)=>r%2||c%2}
+  square:{name:"Granny Square",w:8,h:8},
+  scarf:{name:"Cozy Scarf",w:6,h:12},
+  patch:{name:"Patch",w:5,h:5},
+  plush:{name:"Plush Panel",w:7,h:12},
+  heart:{name:"Heart",w:7,h:7,mask:(r,c)=>Math.abs(c-3)+r<6},
+  star:{name:"Star",w:9,h:9,mask:(r,c)=>r%2||c%2},
+  beanie:{name:"Beanie",w:9,h:6,mask:(r,c)=>r>1 && Math.abs(c-4)<r}
 };
 
 /* ================= GAME STATE ================= */
@@ -229,11 +231,7 @@ function generatePattern(){
   for(let r=0;r<o.h;r++){
     for(let c=0;c<o.w;c++){
       if(!o.mask || o.mask(r,c)){
-        game.pattern.push({
-          row:r,
-          col:c,
-          type:types[t % types.length]
-        });
+        game.pattern.push({row:r,col:c,type:types[t % types.length]});
         t++;
       }
     }
@@ -260,21 +258,17 @@ function checkCombo(){
 }
 
 function complete(){
-  const s = game.pattern[game.index];
-  game.fabric.push(s);
+  game.fabric.push(game.pattern[game.index]);
   game.index++;
   game.buffer = [];
-
-  if(game.index >= game.pattern.length){
-    finish();
-  }
+  if(game.index >= game.pattern.length) finish();
 }
 
 function undo(){
-  if(game.index === 0) return;
+  if(game.index===0) return;
   game.index--;
   game.fabric.pop();
-  game.buffer = [];
+  game.buffer=[];
 }
 
 /* ================= FINISH ================= */
@@ -308,7 +302,6 @@ function drawHook(x,y){
 
 function render(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
-
   const ox = canvas.clientWidth/2 - 80;
   const oy = canvas.clientHeight/2 + 60;
 
@@ -318,9 +311,7 @@ function render(){
 
   if(!game.finished){
     const t = game.pattern[game.index];
-    if(t){
-      drawHook(ox + t.col*24, oy - t.row*24);
-    }
+    if(t) drawHook(ox + t.col*24, oy - t.row*24);
   }
 
   requestAnimationFrame(render);
@@ -330,10 +321,7 @@ render();
 /* ================= UI ================= */
 function updateUI(){
   const t = game.pattern[game.index];
-  if(!t){
-    tutorial.textContent = "";
-    return;
-  }
+  if(!t){ tutorial.textContent=""; return; }
   const combo = STITCHES[t.type];
   tutorial.innerHTML =
     `<b>${t.type.toUpperCase()} stitch</b><br>
@@ -343,20 +331,88 @@ function updateUI(){
 }
 setInterval(updateUI,120);
 
+/* ================= REWARDS ================= */
+const REWARDS = {
+  square:cx=>drawSquare(cx),
+  scarf:cx=>drawScarf(cx),
+  heart:cx=>drawHeart(cx),
+  star:cx=>drawStar(cx),
+  plush:cx=>drawPlush(cx),
+  beanie:cx=>drawBeanie(cx)
+};
+
+function drawSquare(cx){
+  cx.fillStyle = game.yarn;
+  cx.shadowColor = game.yarn;
+  cx.shadowBlur = 20;
+  cx.beginPath();
+  cx.roundRect(80,80,140,140,20);
+  cx.fill();
+  cx.shadowBlur=0;
+}
+
+function drawScarf(cx){
+  cx.strokeStyle = game.yarn;
+  cx.lineWidth = 18;
+  cx.lineCap = "round";
+  cx.beginPath();
+  cx.moveTo(120,40);
+  cx.quadraticCurveTo(200,160,160,260);
+  cx.stroke();
+  cx.beginPath();
+  cx.moveTo(170,40);
+  cx.quadraticCurveTo(250,160,200,260);
+  cx.stroke();
+}
+
+function drawHeart(cx){
+  cx.fillStyle = game.yarn;
+  cx.beginPath();
+  cx.moveTo(150,210);
+  cx.bezierCurveTo(60,130,80,60,150,100);
+  cx.bezierCurveTo(220,60,240,130,150,210);
+  cx.fill();
+}
+
+function drawStar(cx){
+  cx.fillStyle = game.yarn;
+  cx.beginPath();
+  cx.moveTo(150,40);
+  for(let i=0;i<5;i++){
+    cx.lineTo(150+60*Math.cos((18+i*72)*Math.PI/180),
+              150-60*Math.sin((18+i*72)*Math.PI/180));
+    cx.lineTo(150+25*Math.cos((54+i*72)*Math.PI/180),
+              150-25*Math.sin((54+i*72)*Math.PI/180));
+  }
+  cx.closePath();
+  cx.fill();
+}
+
+function drawPlush(cx){
+  cx.fillStyle = game.yarn;
+  cx.beginPath();
+  cx.roundRect(90,70,120,160,30);
+  cx.fill();
+}
+
+function drawBeanie(cx){
+  cx.fillStyle = game.yarn;
+  cx.beginPath();
+  cx.arc(150,160,90,Math.PI,0);
+  cx.fill();
+  cx.fillRect(60,160,180,30);
+  cx.beginPath();
+  cx.arc(150,70,10,0,Math.PI*2);
+  cx.fill();
+}
+
 /* ================= CELEBRATION ================= */
 function showCelebration(){
+  rewardTitle.textContent = `You made a ${OBJECTS[game.object].name}! 🧶✨`;
   const c = document.getElementById("celebrationCanvas");
   const cx = c.getContext("2d");
   cx.clearRect(0,0,c.width,c.height);
-  cx.strokeStyle = game.yarn;
-  cx.lineWidth = 5;
-
-  game.fabric.forEach(s=>{
-    cx.beginPath();
-    cx.arc(40 + s.col*22, 260 - s.row*22, 8, 0, Math.PI*2);
-    cx.stroke();
-  });
-
+  if(REWARDS[game.object]) REWARDS[game.object](cx);
   celebration.style.display = "flex";
 }
 
